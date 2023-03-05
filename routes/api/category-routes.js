@@ -36,17 +36,49 @@ router.get('/:id', (req, res) => {
 
 router.post('/', (req, res) => {
 	// create a new category
-	Category.findOrCreate().then(() => {
+	Category.findOrCreate({
+		//this checks is there is an existing category of the same name if not creates new one
+		where: { category_name: req.body.category_name },
+		defaults: {
+			category_name: req.body.category_name,
+		},
+	}).then(() => {
 		res.send('New Category Added Successfully!');
 	});
 });
 
-// router.put('/:id', (req, res) => {
-// 	// update a category by its `id` value
-// });
+router.put('/:id', (req, res) => {
+	// update a category by its `id` value
+	Category.update(
+		{
+			// All the fields you can update and the data attached to the request body.
+			category_name: req.body.category_name,
+		},
+		{
+			// Gets the categories based on the id given in the request parameters
+			where: {
+				id: req.params.id,
+			},
+		}
+	)
+		.then((updatedCategory) => {
+			// Sends the updated book as a json response
+			res.json(updatedCategory);
+		})
+		.catch((err) => res.json(err));
+});
 
-// router.delete('/:id', (req, res) => {
-// 	// delete a category by its `id` value
-// });
+router.delete('/:id', (req, res) => {
+	// delete a category by its `id` value
+	Category.destroy({
+		where: {
+			id: req.params.id,
+		},
+	})
+		.then((deletedCategory) => {
+			res.json(deletedCategory);
+		})
+		.catch((err) => res.json(err));
+});
 
 module.exports = router;
